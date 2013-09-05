@@ -1,30 +1,15 @@
 <?php
-$GLOBALS['debug_level'] = 1;
+include_once('settings.php');
+include_once('ffprobe.php');
 
-$path = '/home/jamesn/Documents/test/';
-
-//array of file extensions to process
-$types = array('mp4');
-
-dir_walk('probe', $path, $types, true, $path);
+foreach($paths as $path)
+	dir_walk('probe', $path, $types, true, $path);
 
 function probe($file)
 {
-	//$command = 'ffprobe -print_format json '.$file;
-	 $comand = '-v quiet -print_format json -show_format -show_streams '.$file;
-	debug_output('exec '.$command, 1); 
-	$output = shell_exec($command);
-	//$output = preg_split('/[\r\n]+/', $output);
-	$output = json_decode( $output);
-	debug_output($output, 1);
-	foreach($output as $key => $line);
-	{
-		$line = explode(':', $line);
-		debug_output($key, 1);
-		debug_output($line, 1);
-	}
-	
-	
+	$ffprobe = new ffprobe($file, true);
+	$metadata = $ffprobe->get_all();
+	debug_output($metadata);
 }
 
 function transcode_video($file)

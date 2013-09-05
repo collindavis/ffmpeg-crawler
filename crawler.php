@@ -3,7 +3,7 @@ include_once('settings.php');
 include_once('ffprobe.php');
 
 foreach($paths as $path)
-	dir_walk('probe', $path, $types, true, $path);
+	dir_walk('probe', $path, $GLOBALS['types'], $GLOBALS['ignore'], true, $path);
 
 function probe($file)
 {
@@ -36,7 +36,7 @@ function debug_output($output, $level = 1)
  * @param bool $recursive Whether to list subfolders as well.
  * @param string $baseDir String to append at the beginning of every filepath that the callback will receive.
  */
-function dir_walk($callback, $dir, $types = null, $recursive = false, $baseDir = '') 
+function dir_walk($callback, $dir, $types = null, $ignore = null, $recursive = false, $baseDir = '') 
 {
 	$dir = rtrim($dir, '/');
 	debug_output("opening directory ".$dir, 0);
@@ -66,7 +66,7 @@ function dir_walk($callback, $dir, $types = null, $recursive = false, $baseDir =
 			}
 			elseif($recursive && is_dir($file_path)) 
 			{
-				dir_walk($callback, $file_path . DIRECTORY_SEPARATOR, $types, $recursive, $baseDir . $file . DIRECTORY_SEPARATOR);
+				dir_walk($callback, $file_path . DIRECTORY_SEPARATOR, $types, $ignore, $recursive, $baseDir . $file . DIRECTORY_SEPARATOR);
 			}
 			else
 				debug_output('doing nothing '.$file_path);

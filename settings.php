@@ -8,7 +8,10 @@ $paths = array
 
 
 //array of file extensions to process
-$types = array('mp4');
+$GLOBALS['types'] = array('mp4');
+
+//array of things to look for in file names that should be ignored from processing.
+$GLOBALS['ignore'] = array('');
 
 
 

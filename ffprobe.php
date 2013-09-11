@@ -10,6 +10,7 @@ class ffprobe
 	{
 		if (!file_exists($filename)) {
 			throw new Exception(sprintf('File not exists: %s', $filename));
+			//str_replace(' ', "\\ ", $filename)
 		}
 		$this->__metadata = $this->__probe($filename, $prettify);
 	}
@@ -31,7 +32,7 @@ class ffprobe
 		setlocale(LC_CTYPE, 'en_US.UTF-8');
 		
 		//$command = sprintf('ffprobe %s %s ', $options, escapeshellarg($filename));
-		$command = sprintf('ffprobe %s "%s" ', $options, $filename);
+		$command = sprintf('../ffprobe %s "%s" ', $options, $filename);
 		
 		// Run the ffprobe, save the JSON output then decode
 		$json = json_decode(shell_exec($command), true);

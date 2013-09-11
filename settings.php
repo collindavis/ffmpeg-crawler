@@ -3,15 +3,15 @@ $GLOBALS['debug_level'] = 1;
 
 $paths = array
 (
-	'/home/jamesn/Documents/test/',
+	'/Volumes/Footage1/',
 );
 
 
 //array of file extensions to process
-$GLOBALS['types'] = array('mp4');
+$GLOBALS['types'] = array('mp4,mov,dv');
 
 //array of things to look for in file names that should be ignored from processing.
-$GLOBALS['ignore'] = array('');
+$GLOBALS['ignore'] = array('!,x,.');
 
 
 

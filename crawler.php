@@ -9,7 +9,31 @@ function probe($file)
 {
 	$ffprobe = new ffprobe($file, true);
 	$metadata = $ffprobe->get_all();
-	debug_output($metadata);
+	//debug_output($metadata);
+	
+	$path = explode('/', $file);
+	
+	$extra = explode('_', $path[7]);
+	
+	$output = array
+	(
+		'filename' => $metadata['format']['filename'],
+		'format_long_name' => $metadata['format']['format_long_name'],
+		'nb_streams' => $metadata['format']['nb_streams'],
+		'duration' => $metadata['format']['duration'],
+		'size' => $metadata['format']['size'],
+		'bit_rate' => $metadata['format']['bit_rate'],
+		'creation_time' => $metadata['format']['tags']['creation_time'],
+		'make' => $path[2],
+		'model' => $path[3],
+		'year' => $path[4],
+		'type' => $path[5],
+		'source' => $path[6],
+		'definition' => $extra[2],
+		'action' => $extra[1],
+	);
+	
+	debug_output($output);
 }
 
 function transcode_video($file)
@@ -23,7 +47,7 @@ function transcode_video($file)
 function debug_output($output, $level = 1)
 {
 	if($GLOBALS['debug_level'] <= $level)
-		echo "* $level * ".print_r($output, true)."\r\n";
+		echo "DEBUG: $level \t\r\n".print_r($output, true)."\r\n";
 }
 /**
  * Calls a function for every file in a folder.
@@ -45,31 +69,52 @@ function dir_walk($callback, $dir, $types = null, $ignore = null, $recursive = f
 	{
 		while (($file = readdir($dh)) !== false) 
 		{
-			$file_path = $dir.'/'.$file;
-			if ($file === '.' || $file === '..') 
+			$continue = true;
+			if(isset($GLOBALS['ignore']))
 			{
-				continue;
-			}
-			if (is_file($file_path)) 
-			{
-				debug_output('found file '.$file_path, 0);
-				if (is_array($types)) 
+				foreach($GLOBALS['ignore'] as $regex)
 				{
-					$pathinfo = pathinfo($file_path, PATHINFO_EXTENSION);
-					debug_output($pathinfo, 0);
-					if (!in_array(strtolower($pathinfo), $types, true)) 
+					$test = preg_match($regex, $file);
+					if($test && count($test))
 					{
-						continue;
+						debug_output('found "'.$regex.'" skipping file '.$file, 1);
+						$continue = false;
+					}
+					elseif(preg_last_error())
+					{
+						debug_output('Bad regex "'.$regex.'" preg_last_error = '.preg_error_output(preg_last_error()), 5);
 					}
 				}
-				$callback($baseDir . $file);
 			}
-			elseif($recursive && is_dir($file_path)) 
+			
+			if($continue)
 			{
-				dir_walk($callback, $file_path . DIRECTORY_SEPARATOR, $types, $ignore, $recursive, $baseDir . $file . DIRECTORY_SEPARATOR);
+				$file_path = $dir.'/'.$file;
+				if ($file === '.' || $file === '..') 
+				{
+					continue;
+				}
+				if (is_file($file_path)) 
+				{
+					debug_output('found file '.$file_path, 0);
+					if (is_array($types)) 
+					{
+						$pathinfo = pathinfo($file_path, PATHINFO_EXTENSION);
+						debug_output($pathinfo, 0);
+						if (!in_array(strtolower($pathinfo), $types, true)) 
+						{
+							continue;
+						}
+					}
+					$callback($baseDir . $file);
+				}
+				elseif($recursive && is_dir($file_path)) 
+				{
+					dir_walk($callback, $file_path . DIRECTORY_SEPARATOR, $types, $ignore, $recursive, $baseDir . $file . DIRECTORY_SEPARATOR);
+				}
+				else
+					debug_output('doing nothing '.$file_path);
 			}
-			else
-				debug_output('doing nothing '.$file_path);
 		}
 		closedir($dh);
 	}

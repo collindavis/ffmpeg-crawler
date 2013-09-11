@@ -8,10 +8,21 @@ $paths = array
 
 
 //array of file extensions to process
-$GLOBALS['types'] = array('mp4,mov,dv');
+$GLOBALS['types'] = array
+(
+	'mp4', 
+	'mov', 
+	'dv'
+);
 
 //array of things to look for in file names that should be ignored from processing.
-$GLOBALS['ignore'] = array('!,x,.');
+//this uses preg_match
+$GLOBALS['ignore'] = array
+(
+	'/!/',
+	'/Trash/',
+	'/EXT/'
+);
 
 
 
@@ -30,4 +41,35 @@ try
 catch(PDOException $e)
 {
 	echo $e->getMessage()."\r\n";
+}
+
+
+function preg_error_output($value)
+{
+	switch($value)
+	{
+		case PREG_NO_ERROR;
+			return 'PREG_NO_ERROR';
+			break;
+		
+		case PREG_INTERNAL_ERROR;
+			return 'PREG_INTERNAL_ERROR';
+			break;
+		
+		case PREG_BACKTRACK_LIMIT_ERROR;
+			return 'PREG_BACKTRACK_LIMIT_ERROR';
+			break;
+			
+		case PREG_RECURSION_LIMIT_ERROR;
+			return 'PREG_RECURSION_LIMIT_ERROR';
+			break;
+			
+		case PREG_BAD_UTF8_ERROR;
+			return 'PREG_BAD_UTF8_ERROR';
+			break;
+			
+		case PREG_BAD_UTF8_OFFSET_ERROR;
+			return 'PREG_BAD_UTF8_OFFSET_ERROR';
+			break;
+	}
 }

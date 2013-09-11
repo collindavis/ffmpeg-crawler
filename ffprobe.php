@@ -32,7 +32,7 @@ class ffprobe
 		setlocale(LC_CTYPE, 'en_US.UTF-8');
 		
 		//$command = sprintf('ffprobe %s %s ', $options, escapeshellarg($filename));
-		$command = sprintf('../ffprobe %s "%s" ', $options, $filename);
+		$command = sprintf('./ffprobe %s "%s" ', $options, $filename);
 		
 		// Run the ffprobe, save the JSON output then decode
 		$json = json_decode(shell_exec($command), true);

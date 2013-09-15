@@ -31,10 +31,10 @@ $GLOBALS['ignore'] = array
 	'/^\./' //any file name starting with a period
 );
 
-$GLOBALS['transcode_to'] = '~/engine/output/Rawclips/';
+$GLOBALS['transcode_to'] = '/Users/encoder/engine/output/Rawclips/';
 
-$GLOBALS['transcode_options_hd'] = '';
-$GLOBALS['transcode_options_sd'] = '';
+$GLOBALS['transcode_options_hd'] = ' -y -q:v 1 -b:v 4800k -b:a 128k -strict -2';
+$GLOBALS['transcode_options_sd'] = ' -y -q:v 1 -b:v 1600k -b:a 128k -strict -2';
 
 /*
  * MySQL Connection

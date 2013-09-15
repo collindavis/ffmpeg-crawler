@@ -1,6 +1,10 @@
 <?php
 $GLOBALS['debug_level'] = 1;
 
+/*
+ * NOTE: all paths defined but have a trailing slash
+ */
+
 $paths = array
 (
 	'/Volumes/Footage1/',
@@ -12,7 +16,8 @@ $GLOBALS['types'] = array
 (
 	'mp4', 
 	'mov', 
-	'dv'
+	'dv',
+	'mpg'
 );
 
 //array of things to look for in file names that should be ignored from processing.
@@ -21,29 +26,38 @@ $GLOBALS['ignore'] = array
 (
 	'/!/',
 	'/Trash/',
-	'/EXT/'
+	'/TheVolumeSettingsFolder/',
+	'/xx/',
+	'/^\./' //any file name starting with a period
 );
 
+$GLOBALS['transcode_to'] = '~/engine/output/Rawclips/';
 
+$GLOBALS['transcode_options_hd'] = '';
+$GLOBALS['transcode_options_sd'] = '';
 
 /*
  * MySQL Connection
  */
-$host = 'localhost';
-$dbname = 'videos';
+$host = '127.0.0.1';
+$dbname = 'carvid';
 $user = 'root';
 $pass = '';
 try 
 {
-	# MySQL with PDO_MYSQL
-	$DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);  
+	require 'redbean/rb.php';
+	R::setup("mysql:host=$host;dbname=$dbname",$user,$pass); 
+	//R::nuke();
 }
-catch(PDOException $e)
+catch(Exception $e)
 {
 	echo $e->getMessage()."\r\n";
 }
 
 
+/*
+ * outputs a better preg match error
+ */
 function preg_error_output($value)
 {
 	switch($value)

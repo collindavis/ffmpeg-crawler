@@ -2,6 +2,8 @@
 include_once('settings.php');
 include_once('ffprobe.php');
 
+$GLOBALS['new'] = 0;
+$GLOBALS['update'] = 0;
 foreach($paths as $path)
 	dir_walk('probe', $path, $GLOBALS['types'], $GLOBALS['ignore'], true, $path);
 
@@ -11,8 +13,10 @@ function probe($file)
 	$metadata = $ffprobe->get_all();
 	//debug_output($metadata);
 	
+	//break apart file path to get parts to use later
 	$path = explode('/', $file);
 	
+	//break apart file name to use later
 	$extra = explode('_', $path[7]);
 	
 	$output = array
@@ -24,16 +28,63 @@ function probe($file)
 		'size' => $metadata['format']['size'],
 		'bit_rate' => $metadata['format']['bit_rate'],
 		'creation_time' => $metadata['format']['tags']['creation_time'],
-		'make' => $path[2],
-		'model' => $path[3],
-		'year' => $path[4],
-		'type' => $path[5],
+		'make' => $path[3],
+		'model' => $path[4],
+		'year' => $path[5],
+		//'type' => $path[6],
 		'source' => $path[6],
 		'definition' => $extra[2],
 		'action' => $extra[1],
 	);
 	
 	debug_output($output);
+	try
+	{
+		//see if the video already exists
+		$video = R::findOne('video',
+			' filename = :filename', 
+				array( 
+					':filename' => $output['filename'] 
+				)
+		);
+		
+		if(!$video)
+		{//didn't find one, create one
+			$video = R::dispense('video');
+			$GLOBALS['new']++;
+		}
+		else
+			$GLOBALS['update']++;
+			
+			
+		$video->filename = $output['filename'];
+		$video->format_long_name = $output['format_long_name'];
+		$video->nb_streams = $output['nb_streams'];
+		$video->duration = $output['duration'];
+		$video->size = $output['size'];
+		$video->bit_rate = $output['bit_rate'];
+		$video->creation_time = $output['creation_time'];
+		$video->make = $output['make'];
+		$video->model = $output['model'];
+		$video->year = $output['year'];
+		$video->source = $output['source'];
+		$video->definition = $output['definition'];
+		$video->action = $output['action'];
+		$video->raw_ffprove = serialize($metadata);
+		
+		//mark this as not transcoded
+		if(!isset($video->transcoded))
+			$video->transcoded = false;
+		
+		
+		$id = R::store($video);
+		
+		echo $id."\t".$output['filename']."\r\n";
+	}
+	catch(Exception $e)
+	{
+		echo $e->getMessage()."\r\n";
+	}
 }
 
 function transcode_video($file)
@@ -69,6 +120,10 @@ function dir_walk($callback, $dir, $types = null, $ignore = null, $recursive = f
 	{
 		while (($file = readdir($dh)) !== false) 
 		{
+			if ($file === '.' || $file === '..') 
+			{
+				continue;
+			}
 			$continue = true;
 			if(isset($GLOBALS['ignore']))
 			{
@@ -90,10 +145,7 @@ function dir_walk($callback, $dir, $types = null, $ignore = null, $recursive = f
 			if($continue)
 			{
 				$file_path = $dir.'/'.$file;
-				if ($file === '.' || $file === '..') 
-				{
-					continue;
-				}
+				
 				if (is_file($file_path)) 
 				{
 					debug_output('found file '.$file_path, 0);

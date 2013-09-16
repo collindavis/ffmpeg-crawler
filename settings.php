@@ -8,6 +8,8 @@ $GLOBALS['debug_level'] = 1;
 $paths = array
 (
 	'/Volumes/Footage1/',
+	'/Volumes/Footage2/',
+	'/Volumes/Footage3/',
 );
 
 
@@ -25,7 +27,7 @@ $GLOBALS['types'] = array
 $GLOBALS['ignore'] = array
 (
 	'/!/',
-	'/Trash/',
+	'/-av$/', //Final Cut Pro problem file
 	'/TheVolumeSettingsFolder/',
 	'/xx/',
 	'/^\./' //any file name starting with a period
@@ -47,7 +49,15 @@ try
 {
 	require 'redbean/rb.php';
 	R::setup("mysql:host=$host;dbname=$dbname",$user,$pass); 
+	
+	//freezes the db's structure, increases performance after it's all set up.
+	//R::freeze( true );
+	
+	
+	//Reset the Database
 	//R::nuke();
+	//this should be added after nuking:
+	//create index filename ON video (filename);
 }
 catch(Exception $e)
 {

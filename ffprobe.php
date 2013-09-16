@@ -4,6 +4,8 @@
  * ffprobe class helper for ffmpeg 0.9+ (JSON support)
  * Written by Paulo Freitas <me@paulofreitas.me> under CC BY-SA 3.0 license
  */
+include_once('cli_colors.php');
+
 class ffprobe
 {
 	public function __construct($filename, $prettify = false)
@@ -40,7 +42,17 @@ class ffprobe
 		//if (!isset($json->format)) 
 		if (!isset($json['format'])) 
 		{
-			throw new Exception('Unsupported file type: '.$filename."\r\nCommand:\r\n".$command."\r\n");
+			//throw new Exception('Unsupported file type: '.$filename."\r\nCommand:\r\n".$command."\r\n");
+			$output = 'ffprobe: Unsupported file type: '.$filename."\r\nCommand:\r\n".$command."\r\n";
+			$colors = new Colors();
+			$colors->getColoredString($output, 'black', 'red');
+			
+			//The command finished with an error. 
+			$error = R::dispense('error');
+			//$video->ownError = array($error);
+			$error->raw_output = $output;
+			$error->repaired = false;
+			$id = R::store($error);
 		}
 		
 		// Save parse time (milliseconds)

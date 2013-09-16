@@ -9,6 +9,6 @@ foreach($videos as $video)
 	if(!file_exists($video->filename))
 	{
 		R::trash( $video );
-		echo "remvoing {$video->id} {$video->filename}\r\n";
+		echo "removing {$video->id} {$video->filename}\r\n";
 	}
 }
